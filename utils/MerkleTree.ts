@@ -1,22 +1,35 @@
-const { keccak256 } = require('ethereum-cryptography/keccak');
-const { bytesToHex } = require('ethereum-cryptography/utils');
+import { keccak256 } from "ethereum-cryptography/keccak";
+import { bytesToHex } from "ethereum-cryptography/utils";
+
+interface ProofNode {
+  data: string;
+  left: boolean;
+}
 
 class MerkleTree {
-  constructor(leaves) {
+  private leaves: Uint8Array[];
+  private concat: (left: Uint8Array, right: Uint8Array) => Uint8Array;
+
+  constructor(leaves: string[]) {
     this.leaves = leaves.map(Buffer.from).map(keccak256);
-    this.concat = (left, right) => keccak256(Buffer.concat([left, right]));
+    this.concat = (left: Uint8Array, right: Uint8Array) =>
+      keccak256(Buffer.concat([left, right]));
   }
 
-  getRoot() {
+  getRoot(): string {
     return bytesToHex(this._getRoot(this.leaves));
   }
 
-  getProof(index, layer = this.leaves, proof = []) {
+  getProof(
+    index: number,
+    layer: Uint8Array[] = this.leaves,
+    proof: ProofNode[] = []
+  ): ProofNode[] {
     if (layer.length === 1) {
       return proof;
     }
 
-    const newLayer = [];
+    const newLayer: Uint8Array[] = [];
 
     for (let i = 0; i < layer.length; i += 2) {
       const left = layer[i];
@@ -37,20 +50,16 @@ class MerkleTree {
       }
     }
 
-    return this.getProof(
-      Math.floor(index / 2),
-      newLayer,
-      proof
-    );
+    return this.getProof(Math.floor(index / 2), newLayer, proof);
   }
 
   // private function
-  _getRoot(leaves = this.leaves) {
+  private _getRoot(leaves: Uint8Array[] = this.leaves): Uint8Array {
     if (leaves.length === 1) {
       return leaves[0];
     }
 
-    const layer = [];
+    const layer: Uint8Array[] = [];
 
     for (let i = 0; i < leaves.length; i += 2) {
       const left = leaves[i];
@@ -67,4 +76,4 @@ class MerkleTree {
   }
 }
 
-module.exports = MerkleTree;
+export default MerkleTree;
