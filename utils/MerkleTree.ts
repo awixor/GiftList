@@ -34,7 +34,7 @@ export class MerkleTree {
   }
 
   getProof(index: number): { data: string; left: boolean }[] {
-    let proof = [];
+    const proof: { data: string; left: boolean }[] = [];
     let layerIdx = this.layers.length - 1; // Start from leaves
 
     while (layerIdx > 0) {

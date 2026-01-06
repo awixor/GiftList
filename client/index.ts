@@ -1,13 +1,15 @@
 import axios from "axios";
-import niceList from "../utils/niceList.json";
-import MerkleTree from "../utils/MerkleTree";
 
 const serverUrl = "http://localhost:1225";
 
 async function main() {
-  // TODO: how do we prove to the server we're on the nice list?
+  const name = "Mr. Janice Ryan";
+
+  const { data: proof } = await axios.get(`${serverUrl}/proof?name=${name}`);
+
   const { data: gift } = await axios.post(`${serverUrl}/gift`, {
-    // TODO: add request body parameters here!
+    proof,
+    name,
   });
 
   console.log({ gift });

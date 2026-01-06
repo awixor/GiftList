@@ -1,4 +1,4 @@
-import MerkleTree from "./MerkleTree";
+import { MerkleTree } from "./MerkleTree";
 import niceList from "./niceList.json";
 import verifyProof from "./verifyProof";
 
