@@ -6,25 +6,18 @@ interface ProofNode {
   left: boolean;
 }
 
-const concat = (left: Uint8Array, right: Uint8Array): Uint8Array =>
-  keccak256(Buffer.concat([left, right]));
-
 function verifyProof(proof: ProofNode[], leaf: string, root: string): boolean {
-  const proofWithBytes = proof.map(({ data, left }) => ({
-    left,
-    data: hexToBytes(data),
-  }));
-  let data = keccak256(Buffer.from(leaf));
+  let currentHash = keccak256(Buffer.from(leaf));
 
-  for (let i = 0; i < proofWithBytes.length; i++) {
-    if (proofWithBytes[i].left) {
-      data = concat(proofWithBytes[i].data, data);
-    } else {
-      data = concat(data, proofWithBytes[i].data);
-    }
+  for (const node of proof) {
+    const siblingHash = hexToBytes(node.data);
+
+    currentHash = node.left
+      ? keccak256(Buffer.concat([siblingHash, currentHash]))
+      : keccak256(Buffer.concat([currentHash, siblingHash]));
   }
 
-  return bytesToHex(data) === root;
+  return bytesToHex(currentHash) === root;
 }
 
 export default verifyProof;
